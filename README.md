@@ -13,7 +13,7 @@ La estructura del proyecto es:
         ├── config
             ├── configuration json files
         ├── model
-            ├── python clases
+            ├── python classes
         ├── api
             ├── bot
     ├── test
@@ -26,14 +26,14 @@ La estructura del proyecto es:
    
 ### src config:
 
-Se encuentra un archivo json con los datos de remarkets y otras config como costo de transacciones.
+Se encuentra un archivo json con los datos de remarkets y otras configuraciones como costo de transacción.
 
 ### src model:
 
 Se encuentran varios archivos de python con las clases que conforman el bot de trading:
 
     - api_wrapper: contiene la clase para asegurarse que solo una instancia de PyRofex sea creada. Para eso usa una metaclase Singleton.
-    - display: imprime en la pantalla las tasas implicitas
+    - display: imprime en la pantalla las tasas implícitas.
     - expired: contiene la clase para ver si el instrumento expiró.
     - instrument_handler: tiene dos clases, FutureContract e InstrumentHandler. La primera se encarga de representar contratos futuros, la segunda se transforma el input con los nombres "crudos" de los tickers para que yfinance y pyrofex puedan rastrear los correspondientes intrumentos.
     - market_apis: conformado por tres clases, una padre y dos hijas. Las clases hijas se conectan con la data de mercado, piden, actualizan y en caso de la que se conecta con PyRofex tambien manda ordenes.
@@ -45,7 +45,7 @@ Se encuentran varios archivos de python con las clases que conforman el bot de t
     
 ### src api:
 
-Ahi se encuentra el archivo que corre el bot.
+Ahí se encuentra el archivo que corre el bot.
 
 ### test model:
 
