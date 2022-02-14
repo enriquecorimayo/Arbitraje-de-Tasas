@@ -1,5 +1,9 @@
 # Arbitraje-de-Tasas
 
+La idea del ejercicio es determinar si hay ocasiones en las que la tasa colocadora (compra de la acción y venta
+del futuro) es superior a la tasa tomadora (venta en corto de la acción y compra del
+futuro). En caso de que sea así realizar las operaciones correspondientes para generar el arbitraje.
+
 ## Estructura
 
 La estructura del proyecto es:
