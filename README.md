@@ -3,22 +3,22 @@ Arbitraje de Tasas
 
 La estructura del proyecto es:
 
-  |_src
+    |_src
 
-    |_conf
+      |_conf
     
-      |_json config file
+        |_json config file
     
-    |_api
+      |_api
   
-      |_bot
+        |_bot
   
-    |_model
+      |_model
     
-      |_clases files
+        |_clases files
   
-  |_test
+    |_test
 
-    |_model
+      |_model
   
-      |_unit test files
+        |_unit test files
