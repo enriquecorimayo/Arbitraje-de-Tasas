@@ -56,36 +56,41 @@ Contiene dos unit tets:
     - test_strategy: contiene dos test.
     
         - testea que si no hay oportunidad, la estrategia no haga nada.
-        ![image](https://user-images.githubusercontent.com/71297400/153792707-91c63b49-b223-40d2-8243-9d0a13ea96da.png)
+
+            ...
+            ----------------------------------------------------------------------
+            Ran 3 tests in 0.136s
+
+            OK
 
         - testea que si hay oportunidad la estrategia opere los 4 instrumentos para generar el arbitraje.
         
-                --- Informacion del Trade FEB22 ---
-        Tasa a tomar:
-        Comprar:      GGAL/FEB22   ->       10 @ 115.00
-        Vender:     GGAL         ->   1000.0 @ 100.00
-        Tasa Implícita: 0.347193
-        Monto del Trade: 100000.00
-        Recepción del trade:   {'order': {'clientId': 'test_order_id'}}
-        Estado del Trade: UNITTEST
-        ---
-        Tasa a colocar:
-        Vender:     PAMP/FEB22   ->       10 @ 120.00
-        Comprar:      PAMP         ->   1000.0 @ 100.00
-        Tasa Implícita: 0.452984
-        Monto del Trade: 100000.00
-        Recepción del trade:   {'order': {'clientId': 'test_order_id'}}
-        Estado del Trade: UNITTEST
-        --------------------------------------------
-        Dif. de Tasas:     0.095791
-        Posición Promedio: 100000.00
-        --------------------------------------------
+                    --- Informacion del Trade FEB22 ---
+            Tasa a tomar:
+            Comprar:      GGAL/FEB22   ->       10 @ 115.00
+            Vender:     GGAL         ->   1000.0 @ 100.00
+            Tasa Implícita: 0.347193
+            Monto del Trade: 100000.00
+            Recepción del trade:   {'order': {'clientId': 'test_order_id'}}
+            Estado del Trade: UNITTEST
+            ---
+            Tasa a colocar:
+            Vender:     PAMP/FEB22   ->       10 @ 120.00
+            Comprar:      PAMP         ->   1000.0 @ 100.00
+            Tasa Implícita: 0.452984
+            Monto del Trade: 100000.00
+            Recepción del trade:   {'order': {'clientId': 'test_order_id'}}
+            Estado del Trade: UNITTEST
+            --------------------------------------------
+            Dif. de Tasas:     0.095791
+            Posición Promedio: 100000.00
+            --------------------------------------------
 
-        ..
-        ----------------------------------------------------------------------
-        Ran 2 tests in 0.173s
+            ..
+            ----------------------------------------------------------------------
+            Ran 2 tests in 0.173s
 
-        OK
+            OK
 
 
 
