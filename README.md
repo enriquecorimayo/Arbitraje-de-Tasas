@@ -22,3 +22,11 @@ La estructura del proyecto es:
       |_model
   
         |_unit test files
+-MyProjects
+  -MardownsToPdfs.ps1 << see script bellow
+  -ProjectDirA
+    -ReadmeA.md
+    -ImageA.png
+  -ProjectDirB
+    -ReadmeB.md
+    -ImageB.png
