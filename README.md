@@ -39,11 +39,11 @@ Se encuentran varios archivos de python con las clases que conforman el bot de t
     - tradingbot: contiene la clase que instancia al resto, se encarga de correr el bot de arbitraje.
     - data_update: contiene la clase que trackea la ultima vez que se leyeron precios.
     
-### src api
+### src api:
 
 Ahi se encuentra el archivo que corre el bot.
 
-### test model
+### test model:
 
 Contiene dos unit tets:
 
