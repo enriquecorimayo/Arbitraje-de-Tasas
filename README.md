@@ -3,7 +3,7 @@ Arbitraje de Tasas
 
 La estructura del proyecto es:
 
-  src:
+  |_src
 
     |_conf
     
@@ -17,7 +17,7 @@ La estructura del proyecto es:
     
       |_clases files
   
-  test
+  |_test
 
     |_model
   
