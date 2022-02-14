@@ -56,17 +56,15 @@ Contiene dos unit tets:
         - controla que cuando existe arbitraje la tasa colocadora sea mayor a la tomadora.
         - contorla que cuando no existe arbitraje la tasa colocadora sea menor a la tomadora.
         - testea que el precio obtenido apartir de una tasa implícita conocida, cuando entra como input del modelo de la misma tasa.
-        
-    - test_strategy: contiene dos test.
-    
-        - testea que si no hay oportunidad, la estrategia no haga nada.
-
-            ...
+                    ...
             ----------------------------------------------------------------------
             Ran 3 tests in 0.136s
 
             OK
-
+        
+    - test_strategy: contiene dos test.
+    
+        - testea que si no hay oportunidad, la estrategia no haga nada.
         - testea que si hay oportunidad la estrategia opere los 4 instrumentos para generar el arbitraje.
         
                     --- Informacion del Trade FEB22 ---
