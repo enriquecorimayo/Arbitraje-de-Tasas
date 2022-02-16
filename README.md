@@ -17,7 +17,7 @@ La estructura del proyecto es:
         ├── api
             ├── bot
     ├── test
-        ├── model
+        ├── test_model
             ├── unit test files
     ├── .gitignore
     ├── setup.py
