@@ -118,7 +118,7 @@ class PyRofexApi(ApiData):
         self._pyrofex_wrapper = wrapper.APIWrapper()
         self._bids = {}
         self._asks = {}
-        # No se que tan necesario sea usar Lock.
+        # lock es usado para evitar que se actualice la data de Rofex mientras se está actualizando
         self._bids_lock = threading.Lock()
         self._asks_lock = threading.Lock()
 
