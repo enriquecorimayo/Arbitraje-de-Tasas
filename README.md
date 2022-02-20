@@ -1,4 +1,4 @@
-# Arbitraje-de-Tasas
+# Arbitraje-de-Tasas v1.1
 
 La idea del ejercicio es determinar si hay ocasiones en las que la tasa colocadora (compra de la acción y venta
 del futuro) es superior a la tasa tomadora (venta en corto de la acción y compra del
@@ -41,13 +41,13 @@ Se encuentran varios archivos de python con las clases que conforman el bot de t
     - strategy: contiene la clase que dectecta oportunidades de arbitraje y manda ordenes.
     - tradeable_check: contiene la clase que detecta si los instrumentos son tradeables.
     - tradingbot: contiene la clase que instancia al resto, se encarga de correr el bot de arbitraje.
-    - data_update: contiene la clase que trackea la ultima vez que se leyeron precios.
+    - data_update: No se utiliza en esta modificación
     
 ### src api:
 
 Ahí se encuentra el archivo que corre el bot.
 
-### test model:
+### test model(PENDIENTE DE UPDATE):
 
 Contiene dos unit tets:
 
