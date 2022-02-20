@@ -9,12 +9,13 @@ class ImplicitRateCalculator:
 
     DAYS_IN_A_YEAR = 365
 
-    def __init__(self, pyrofex_api, yfinance_api, tradeable_check):
+    def __init__(self, pyrofex_api_bid,pyrofex_api_ask, yfinance_api, tradeable_check):
         self._tradeable_underliers_futures = (
             tradeable_check.tradeable_pyrofex_future_underlier_ticker()
         )
         self._tradeable_tickers_maturities = tradeable_check.tradeable_ticker_maturity()
-        self._pyrofex_api = pyrofex_api
+        self._pyrofex_api_bid = pyrofex_api_bid
+        self._pyrofex_api_ask = pyrofex_api_ask
         self._yfinance_api = yfinance_api
         self._buy_rate = defaultdict(dict)
         self._sell_rate = defaultdict(dict)
@@ -52,8 +53,8 @@ class ImplicitRateCalculator:
         Actualiza las tasas y ordena los instrumentos por fecha de vencimiento.
         """
         last_price_underlier = self._yfinance_api.last_prices()
-        rofex_instruments_bids = self._pyrofex_api.bids()
-        rofex_instruments_ask = self._pyrofex_api.asks()
+        rofex_instruments_bids = self._pyrofex_api_bid
+        rofex_instruments_ask = self._pyrofex_api_ask
         # self._buy_rate = defaultdict(dict)
         # self._sell_rate = defaultdict(dict)
         for ticker, last_price_of_each in last_price_underlier.items():
