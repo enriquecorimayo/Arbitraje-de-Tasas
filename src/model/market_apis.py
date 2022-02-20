@@ -6,6 +6,10 @@ import traceback
 from collections import defaultdict, namedtuple
 from pprint import pprint
 import src.model.api_wrapper as wrapper
+from src.model.rate_calculator import ImplicitRateCalculator
+from src.model.display import Display
+from src.model.strategy import Strategy
+from datetime import datetime, timedelta
 
 import pyRofex
 import yfinance
@@ -16,7 +20,7 @@ ZERO_LIMIT = 1e-4
 # no tienen diccionarios por instancia. Cada tipo de namedtuple está representada por su propia clase,
 # que es creada usando la función de fábrica namedtuple(). Los argumentos son nombre de la nueva clase y
 # una cadena que contiene los nombres de los elementos.
-# El OrderBook servirá para el Mock en el unittest.
+# El OrderBook servirá para actualizar el book de un mercado.
 
 OrderBook = namedtuple("OrderBook", "price size")
 
@@ -37,54 +41,47 @@ class ApiData:
     def stop(self):
         self._start_request = False
 
-    def last_update_api(self):
-        return self._last_update_api
-
-    def _update_last_update_api(self):
-        self._last_update_api = time.time()
-
 
 class YfinanceAPI(ApiData):
     """
     Pide Data a Yahoo Finance, se actualiza cada un periodo determinado
     """
 
-    def __init__(self, instrument_handler, update_frequency, tradeable_check):
+    def __init__(self, instrument_handler, tradeable_check):
         super().__init__()
         self._tickers = tradeable_check.tradeable_yfinance_tickers()
         self._reorder_tickers = instrument_handler.reorder_yfinance_tickers
-        self._update_frequency = update_frequency
         self._listening_thread = None
         self._prices = {}
 
     def _update_prices(self):
         """Pide data de Yahoo Finance"""
-        while self._start_request:
-            try:
-                data = yfinance.download(
-                    tickers=self._tickers, period="1d", interval="1d", progress=False
+        # while self._start_request:
+        try:
+            data = yfinance.download(
+                tickers=self._tickers, period="1d", interval="1d", progress=False
+            )
+            # start = time.time()
+            prices = data["Close"].to_dict(orient="records")[0]
+            # Si la diferencia es mayor al limite de tolerancia, se actualiza
+            if any(
+                (
+                    price - self._prices.get(self._reorder_tickers[ticker], 0.0)
+                    > ZERO_LIMIT
                 )
-                start = time.time()
-                prices = data["Close"].to_dict(orient="records")[0]
-                # Si la diferencia es mayor al limite de tolerancia, se actualiza
-                if any(
-                    (
-                        price - self._prices.get(self._reorder_tickers[ticker], 0.0)
-                        > ZERO_LIMIT
-                    )
+                for ticker, price in prices.items()
+            ):
+                self._prices = {
+                    self._reorder_tickers[ticker]: price
                     for ticker, price in prices.items()
-                ):
-                    self._prices = {
-                        self._reorder_tickers[ticker]: price
-                        for ticker, price in prices.items()
-                    }
-                    self._update_last_update_api()
-                    print(f"Actualizada {self._prices}\n", flush=True)
-                time.sleep(self._update_frequency)
-            except Exception as e:
-                traceback.print_exc()
-                print(f"Excepcion ocurrio actualizando Yahoo Finance... terminando...")
-                self.stop()
+                }
+                print(f"Actualizada {self._prices}\n", flush=True)
+
+        except Exception as e:
+
+            traceback.print_exc()
+            print(f"Excepción ocurrió actualizando Yahoo Finance... terminando...")
+            self.stop()
 
     def request_market_data(self):
         """Crea un hilo aparte para el request de Yahoo Finance"""
@@ -111,8 +108,16 @@ class PyRofexApi(ApiData):
 
     BIDS_OFFERS = [pyRofex.MarketDataEntry.BIDS, pyRofex.MarketDataEntry.OFFERS]
 
-    def __init__(self, tradeable_check, subscribe_to_order_report=False):
+    def __init__(
+        self,
+        instrument_handler,
+        tradeable_check,
+        yfinance_api,
+        subscribe_to_order_report=False,
+    ):
         super().__init__()
+        self._instrument_handler = instrument_handler
+        self._tradeable_check = tradeable_check
         self._futures_ticker = tradeable_check.tradeable_rofex_futures_tickers()
         self._subscribe_to_order_report = subscribe_to_order_report
         self._pyrofex_wrapper = wrapper.APIWrapper()
@@ -121,6 +126,7 @@ class PyRofexApi(ApiData):
         # lock es usado para evitar que se actualice la data de Rofex mientras se está actualizando
         self._bids_lock = threading.Lock()
         self._asks_lock = threading.Lock()
+        self._yfinance_api = yfinance_api
 
     def __str__(self):
         repr_str = ""
@@ -132,6 +138,9 @@ class PyRofexApi(ApiData):
                 f'{self._asks[ticker].get(pyRofex.MarketDataEntry.OFFERS.value, "-")}'
             )
         return repr_str
+
+    def _update_spot_prices(self):
+        return self._yfinance_api._update_prices()
 
     def _market_data_handler(self, message):
         """
@@ -147,11 +156,66 @@ class PyRofexApi(ApiData):
                 md_entry = market_data[pyRofex.MarketDataEntry.OFFERS.value][0]
                 with self._asks_lock:
                     self._asks[ticker] = OrderBook(md_entry["price"], md_entry["size"])
+            else: 
+                with self._asks_lock:
+                    self._asks = {}
             if market_data[pyRofex.MarketDataEntry.BIDS.value]:
                 md_entry = market_data[pyRofex.MarketDataEntry.BIDS.value][0]
                 with self._bids_lock:
                     self._bids[ticker] = OrderBook(md_entry["price"], md_entry["size"])
-            self._update_last_update_api()
+            else:
+                with self._bids_lock:
+                    self._bids = {}
+            # last_time = datetime.now()
+            # if datetime.now() - last time greater than 5 seconds
+            self._update_spot_prices()
+            try:
+                bids = self.bids()
+                asks = self.asks()
+                implicit_rate_calculator = ImplicitRateCalculator(
+                    bids, asks, self._yfinance_api, self._tradeable_check
+                )
+                implicit_rate_calculator.update_rates()
+                if implicit_rate_calculator.ready():
+                    try:
+                        display = Display(implicit_rate_calculator)
+                        display.print_implicit_rates()
+                    except Exception:
+                        print(f"Excepción mientras se muestran las tasas implícitas...")
+                    strategy = Strategy(
+                        self._instrument_handler, implicit_rate_calculator, bids, asks,
+                    self._yfinance_api, self._tradeable_check)
+                    if strategy.start_trades():
+
+                        buy_order = self.place_order(
+                            ticker=strategy._ticker_to_buy,
+                            side=pyRofex.Side.BUY,
+                            size=strategy._buy_size,
+                            price=strategy._buy_price,
+                            time_in_force=pyRofex.TimeInForce.ImmediateOrCancel,
+                            order_type=pyRofex.OrderType.LIMIT,
+                        )
+                        sell_order = self.place_order(
+                            ticker=strategy._ticker_to_sell,
+                            side=pyRofex.Side.SELL,
+                            size=strategy._sell_size,
+                            price=strategy._sell_price,
+                            time_in_force=pyRofex.TimeInForce.ImmediateOrCancel,
+                            order_type=pyRofex.OrderType.LIMIT,
+                        )
+                        # Falta agregar las ordenes de los SPOT, pero de todas maneras no tienen ninguna liquidez en REMARKETS...
+                        trade_info = [
+                            f"Recepción del trade(Tomadora):   {buy_order}",
+                            f'Estado del Trade (Tomadora): {self.order_execution_status(buy_order["order"]["clientId"])}',
+                            f"Recepción del trade(Colocadora):   {sell_order}",
+                            f'Estado del Trade (Colocadora): {self.order_execution_status(sell_order["order"]["clientId"])}',
+                        ]
+
+                        print("\n".join(trade_info), flush=True)
+            except Exception as e:
+                traceback.print_exc()
+                print(f"Excepción mientras se tradeaba...")
+
         except Exception as e:
             traceback.print_exc()
             print(
