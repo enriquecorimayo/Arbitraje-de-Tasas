@@ -9,7 +9,7 @@ import time
 
 class TradingBot:
     """
-    Clase que instancia a las demas clases y se encarga de correr el Bot
+    Clase que instancia a las demás clases y se encarga de correr el Bot
 
     """
     
